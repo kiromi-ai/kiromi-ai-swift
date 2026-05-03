@@ -24,8 +24,8 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "KiromiAIFFI",
-            url: "https://github.com/kiromi-ai/kiromi-ai-swift/releases/download/v0.2.0/KiromiAIFFI.xcframework.zip",
-            checksum: "26cb7c10c2f4c6b4a23f87dbcb3e09846ba8275540de9a3a2f148af6315dead6"
+            url: "https://github.com/kiromi-ai/kiromi-ai-swift/releases/download/v0.2.1/KiromiAIFFI.xcframework.zip",
+            checksum: "51b573fff724945aa89cfd63b25459d367ecae1679b32132ea66807f5948d7f5"
         ),
         .target(
             name: "SwiftBridgeGenerated",

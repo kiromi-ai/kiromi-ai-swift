@@ -1,0 +1,18 @@
+# Binary artifact — fetched per-release by scripts/fetch-xcframework.sh.
+# Never committed; would bloat git history for what is essentially a
+# build output of the kiromi-ai/kiromi-mem release pipeline.
+Frameworks/KiromiAIFFI.xcframework/
+Frameworks/*.zip
+Frameworks/*.sha256
+
+# SwiftPM
+.build/
+.swiftpm/
+Package.resolved
+
+# Xcode
+*.xcodeproj/
+DerivedData/
+
+# macOS
+.DS_Store

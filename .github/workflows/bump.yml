@@ -1,0 +1,73 @@
+name: Bump release
+
+# Manual trigger — run this workflow with a kiromi-mem tag (e.g. v0.3.0)
+# to refresh sources, update Package.swift, and create a matching
+# release on this repo.
+#
+# Prerequisites at the org level:
+#   - secrets.KIROMI_MEM_READ_TOKEN: PAT with read access to
+#     kiromi-ai/kiromi-mem (so we can `gh release download` the binary).
+#     The default workflow GITHUB_TOKEN cannot read private repos.
+#
+# This avoids the need for an operator to run scripts/bump-version.sh
+# locally — but the script still works locally for ad-hoc bumps.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "kiromi-mem tag to bump to (e.g. v0.3.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: macos-latest
+    env:
+      # Indirect via env to avoid command injection from interpolated
+      # workflow_dispatch input into shell commands.
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate tag format
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "tag must look like vMAJOR.MINOR.PATCH (got: $TAG)" >&2
+            exit 1
+          fi
+
+      - name: Clone kiromi-mem at the requested tag
+        env:
+          GH_TOKEN: ${{ secrets.KIROMI_MEM_READ_TOKEN }}
+        run: |
+          git clone --depth 1 --branch "$TAG" \
+            "https://x-access-token:${GH_TOKEN}@github.com/kiromi-ai/kiromi-mem.git" \
+            /tmp/kiromi-mem
+
+      - name: Run bump script
+        env:
+          GH_TOKEN: ${{ secrets.KIROMI_MEM_READ_TOKEN }}
+          KIROMI_MEM_PATH: /tmp/kiromi-mem
+        run: |
+          bash scripts/bump-version.sh "$TAG" --commit --tag
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$TAG" \
+            --title "kiromi-ai-swift $TAG" \
+            --notes "Tracks kiromi-ai/kiromi-mem $TAG." \
+            Frameworks/KiromiAIFFI.xcframework.zip
+
+      - name: Push commit + tag
+        run: |
+          git push origin HEAD
+          git push origin "$TAG"

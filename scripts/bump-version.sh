@@ -89,16 +89,16 @@ SWIFTPM_CHECKSUM="$ACTUAL"
 
 # 3. Sync Swift sources from kiromi-mem.
 echo "=> syncing Sources/KiromiAI/ and Sources/SwiftBridgeGenerated/ from kiromi-mem"
-rsync -a --delete \
+rsync -a --delete --exclude='.gitkeep' --exclude='.DS_Store' \
     "$KIROMI_MEM_PATH/crates/kiromi-ai-swift/swift/Sources/KiromiAI/" \
     "$ROOT/Sources/KiromiAI/"
-rsync -a --delete \
+rsync -a --delete --exclude='.gitkeep' --exclude='.DS_Store' \
     "$KIROMI_MEM_PATH/crates/kiromi-ai-swift/swift/Sources/SwiftBridgeGenerated/" \
     "$ROOT/Sources/SwiftBridgeGenerated/"
 
 # Sync tests too — they're a useful regression suite.
 if [[ -d "$KIROMI_MEM_PATH/crates/kiromi-ai-swift/swift/Tests/KiromiAITests" ]]; then
-    rsync -a --delete \
+    rsync -a --delete --exclude='.gitkeep' --exclude='.DS_Store' \
         "$KIROMI_MEM_PATH/crates/kiromi-ai-swift/swift/Tests/KiromiAITests/" \
         "$ROOT/Tests/KiromiAITests/"
 fi
